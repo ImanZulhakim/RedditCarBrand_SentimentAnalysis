@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Brand Sentiment</title>
+    <link rel="icon" type="image/x-icon" href="../static/img/icon.png"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/brand.css"/>
+
+</head>
+<body>
+
+<div class="box">
+    <h1>Car Brand <br> Sentiment Analysis</h1>
+    <form class="content" id="analysisForm" action="/brand_detail" method="post">
+        <div class="form-group">
+            <label>Car Brand:</label>
+            <button class="choose" type="button" onclick="openModal()">Choose Brand</button>
+            <!-- Hidden input field to store selected option -->
+            <input type="hidden" id="selected_option" name="subreddit_name">
+        </div>
+        <!-- Box to display the selected option -->
+        <div class="form-group selected-option-box" id="selected_option_box">
+            Selected Option: <span id="selected_option_text"></span>
+        </div>
+        <input class="submit" type="submit" value="Analyze" onclick="submitForm()">
+    </form>
+</div>
+
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Choose Brand</h2>
+        <div class="button-wrapper">
+            <button class="button1" type="button" onclick="setSelectedOption('Toyota')"></button>
+            <button class="button2" type="button" onclick="setSelectedOption('Nissan')"></button>
+            <button class="button3" type="button" onclick="setSelectedOption('Mazda')"></button>
+        </div>
+    </div>
+</div>
+
+<div id="chooseModal" class="chooseModal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModalChoose()">&times;</span>
+        <h2>Plot</h2>
+        <div class="plot">
+            <button class="plotbutton" type="button" onclick="redirectToPlot()"></button>
+            <button class="tablebutton" type="button" onclick="redirectToTable()"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to open the modal
+    function openModal() {
+        document.getElementById("myModal").style.display = "block";
+    }
+
+    function openModalChoose() {
+        document.getElementById("chooseModal").style.display = "block";
+    }
+
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("myModal").style.display = "none";
+    }
+
+    // Function to close the modal
+    function closeModalChoose() {
+        document.getElementById("chooseModal").style.display = "none";
+    }
+
+    // Function to set the selected option
+    function setSelectedOption(option) {
+        document.getElementById('selected_option').value = option;
+        // Update the selected option text in the box
+        document.getElementById('selected_option_text').innerText = option;
+        // Close the modal after selecting an option
+        closeModal();
+    }
+
+    // Function to submit the form
+    function submitForm() {
+        // Submit the form asynchronously using JavaScript Fetch API
+        fetch('/analyze', {
+            method: 'POST',
+            body: new FormData(document.getElementById('analysisForm'))
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Open the chooseModal modal when the form submission is successful
+                    openModalChoose();
+                } else {
+                    // Handle errors if the form submission fails
+                    console.error('Form submission failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function redirectToPlot() {
+        window.location.href = "plot";
+    }
+
+    function redirectToTable() {
+        window.location.href = "table";
+    }
+
+    // Add click event listener to the entire document
+    document.addEventListener("click", function () {
+        // Call the redirect function when the document is clicked
+        redirectToMenu();
+        redirectToTable();
+    });
+
+
+
+</script>
+</body>
+</html>
