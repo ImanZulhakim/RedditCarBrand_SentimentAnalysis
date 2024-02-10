@@ -1,23 +1,74 @@
-(function($) {
-    "use strict";
-    $('.input100').each(function() {
-        $(this).on('blur', function() {
-            if ($(this).val().trim() != "") {
-                $(this).addClass('has-val');
+// Function to open the modal
+function openModal() {
+    document.getElementById("myModal").style.display = "block";
+}
+
+function openModalChoose() {
+    document.getElementById("chooseModal").style.display = "block";
+}
+
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+}
+
+// Function to close the modal
+function closeModalChoose() {
+    document.getElementById("chooseModal").style.display = "none";
+}
+
+// Function to set the selected option
+function setSelectedOption(option) {
+    document.getElementById('selected_option').value = option;
+    // Update the selected option text in the box
+    document.getElementById('selected_option_text').innerText = option;
+    // Close the modal after selecting an option
+    closeModal();
+}
+
+// Function to submit the form
+function submitForm() {
+    // Submit the form asynchronously using JavaScript Fetch API
+    fetch('/analyze', {
+        method: 'POST',
+        body: new FormData(document.getElementById('analysisForm'))
+    })
+        .then(response => {
+            if (response.ok) {
+                // Open the chooseModal modal when the form submission is successful
+                openModalChoose();
             } else {
-                $(this).removeClass('has-val');
+                // Handle errors if the form submission fails
+                console.error('Form submission failed');
             }
         })
-    })
-
-
-    function showValidate(input) {
-        var thisAlert = $(input).parent();
-        $(thisAlert).addClass('alert-validate');
-    }
-    function hideValidate(input) {
-        var thisAlert = $(input).parent();
-        $(thisAlert).removeClass('alert-validate');
-    }
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
-)(jQuery);
+
+function redirectToPlot() {
+    window.location.href = "plot";
+}
+
+function redirectToTable() {
+    window.location.href = "table";
+}
+
+// Add click event listener to the entire document
+document.addEventListener("click", function () {
+    // Call the redirect function when the document is clicked
+    redirectToMenu();
+    redirectToTable();
+});
+
+
+// Get the button element
+const leftArrowButton = document.getElementById('left-arrow-btn');
+
+// Add click event listener to the button
+leftArrowButton.addEventListener('click', function () {
+    // Redirect to another page
+    window.location.href = '/menu'; // Change this URL to the desired destination
+});

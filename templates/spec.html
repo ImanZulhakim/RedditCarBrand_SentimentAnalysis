@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Brand Sentiment</title>
     <link rel="icon" type="image/x-icon" href="../static/img/icon.png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="../static/css/brand.css"/>
 
 </head>
@@ -38,9 +39,9 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <h2>Choose Brand</h2>
         <div class="button-wrapper">
-            <button class="button1" type="button" onclick="setSelectedOption('Toyota')"></button>
-            <button class="button2" type="button" onclick="setSelectedOption('Nissan')"></button>
-            <button class="button3" type="button" onclick="setSelectedOption('Mazda')"></button>
+            <button class="button1" type="button" onclick="setSelectedOption('toyota')"></button>
+            <button class="button2" type="button" onclick="setSelectedOption('nissan')"></button>
+            <button class="button3" type="button" onclick="setSelectedOption('mazda')"></button>
         </div>
     </div>
 </div>
@@ -56,80 +57,11 @@
         </div>
     </div>
 </div>
-{% if plot_data_uri %}
-<img src="data:image/png;base64,{{ plot_data_uri }}" alt="Plot">
-{% endif %}
-{% if table_html %}
-{{ table_html | safe }}
-{% endif %}
-<script>
-    // Function to open the modal
-    function openModal() {
-        document.getElementById("myModal").style.display = "block";
-    }
 
-    function openModalChoose() {
-        document.getElementById("chooseModal").style.display = "block";
-    }
-
-
-    // Function to close the modal
-    function closeModal() {
-        document.getElementById("myModal").style.display = "none";
-    }
-
-    // Function to close the modal
-    function closeModalChoose() {
-        document.getElementById("chooseModal").style.display = "none";
-    }
-
-    // Function to set the selected option
-    function setSelectedOption(option) {
-        document.getElementById('selected_option').value = option;
-        // Update the selected option text in the box
-        document.getElementById('selected_option_text').innerText = option;
-        // Close the modal after selecting an option
-        closeModal();
-    }
-
-    // Function to submit the form
-    function submitForm() {
-        // Submit the form asynchronously using JavaScript Fetch API
-        fetch('/analyze', {
-            method: 'POST',
-            body: new FormData(document.getElementById('analysisForm'))
-        })
-            .then(response => {
-                if (response.ok) {
-                    // Open the chooseModal modal when the form submission is successful
-                    openModalChoose();
-                } else {
-                    // Handle errors if the form submission fails
-                    console.error('Form submission failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
-    function redirectToPlot() {
-        window.location.href = "plot";
-    }
-
-    function redirectToTable() {
-        window.location.href = "table";
-    }
-
-    // Add click event listener to the entire document
-    document.addEventListener("click", function () {
-        // Call the redirect function when the document is clicked
-        redirectToMenu();
-        redirectToTable();
-    });
+<button id="left-arrow-btn" class="fa fa-arrow-left"></button>
 
 
 
-</script>
+<script src="../static/js/main.js"></script>
 </body>
 </html>

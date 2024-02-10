@@ -1,4 +1,3 @@
-import nltk
 from flask import Flask, render_template, request
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,12 +7,16 @@ from joblib import load
 from collections import Counter
 import praw
 import time
+import seaborn as sns
 from pprint import pprint
 from pathlib import Path
+import nltk
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-import seaborn as sns
+
+nltk.download('wordnet')
+
 
 app = Flask(__name__)
 
@@ -122,7 +125,7 @@ def brand_detail():
 
     # Prepare and save the negative sentiment plot in a similar manner
 
-    return render_template('display_brand_sentiment.html',
+    return render_template('display_brand.html',
                            sentiment_plot=sentiment_plot_path,
                            positive_plot=positive_plot_path)
 
@@ -162,7 +165,7 @@ def analyze():
     # Convert DataFrame to HTML table
     table_html = df.to_html()
 
-    return render_template('brand.html', plot_data_uri=plot_data_uri, table_html=table_html)
+    return render_template('display_spec.html', plot_data_uri=plot_data_uri, table_html=table_html)
 
 
 def scrape_reddit(subreddit_name, keyword):
@@ -209,6 +212,7 @@ def predict_from_csv(csv_file_path, subreddit):
         gbm_classifier = load(models_directory / model_filenames['gbm_classifier'])
         mlp_classifier = load(models_directory / model_filenames['mlp_classifier'])
 
+        print(models_directory / model_filenames['svm_classifier'])
         # Load the TF-IDF vectorizer used during training
         vectorizer = load(models_directory / model_filenames['tfidf_vectorizer'])
 
