@@ -6,19 +6,118 @@
     <title>Car Brand Sentiment</title>
     <link rel="icon" type="image/x-icon" href="../static/img/icon.png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="../static/css/brand.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
 
+    <style>
+        body {
+            background-image: url("{{url_for('static', filename='img/bg.png')}}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Keeps the background image fixed */
+        }
+
+    </style>
 </head>
 <body>
-{% if plot_data_uri %}
-    <img src="data:image/png;base64,{{ plot_data_uri }}" alt="Plot">
-{% endif %}
-{% if table_html %}
-    {{ table_html | safe }}
-{% endif %}
+<div id="layoutSidenav_content">
+    <main>
+    <h1 class="keyword">{{ subr }} : {{ keyword }}</h1>
+        <div class="container-fluid px-4">
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-chart-area me-1"></i>
+                            Sentiment Bar Chart
+                        </div>
+                        <div class="card-body">
+                            <canvas id="myAreaChart" width="100%" height="40"></canvas>
+                            {% if plot_data_uri %}
+                                <img src="data:image/png;base64,{{ plot_data_uri }}" alt="Plot">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar me-1"></i>
+                            Sentiment Pie Chart
+                        </div>
+                        <div class="card-body">
+                            <canvas id="myBarChart" width="100%" height="40"></canvas>
+                            {% if plot_data_uri %}
+                                <img src="data:image/png;base64,{{ plot_data_uri_pie }}" alt="Plot">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<button id="left-arrow-btn" class="fa fa-arrow-left"></button>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Positive Headlines
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple">
+                        <tbody>
+                        {% for Headline in positive_headlines %}
+                            <tr>
+                                <td>{{ Headline }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Neutral Headlines
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple">
+                        <tbody>
+                        {% for headline in neutral_headlines %}
+                            <tr>
+                                <td>{{ headline }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-1"></i>
+                    Negative Headlines
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple">
+                        <tbody>
+                        {% for headline in negative_headlines %}
+                            <tr>
+                                <td>{{ headline }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+{#{% if table_html %}#}
+{#    {{ table_html | safe }}#}
+{#{% endif %}#}
+
+<button id="left-arrow-btn-analyze" class="fa fa-arrow-left"></button>
 
 <script src="../static/js/main.js"></script>
 </body>

@@ -159,10 +159,29 @@ def analyze():
     # Save the DataFrame to a CSV file with the specified name
     df.to_csv(csv_file_name, index=False)
 
+    df.head()
+
     # Perform sentiment prediction using majority vote
     predictions = predict_from_csv(csv_file_name, subreddit_name)
     df['sentiment'] = predictions
     df.to_csv('predicted.csv', index=False)
+
+    print(df.head())
+
+    data = pd.read_csv('predicted.csv')
+    print(data.head())
+    print("Positive headlines:\n")
+    pprint(list(data[data['sentiment'] == 1].Headline)[:5], width=200)
+
+    print("\nNeutral headlines:\n")
+    pprint(list(data[data['sentiment'] == 0].Headline)[:5], width=200)
+
+    print("\nNegative headlines:\n")
+    pprint(list(data[data['sentiment'] == -1].Headline)[:5], width=200)
+
+    positive_headlines = list(data[data['sentiment'] == 1].Headline)[:10]
+    neutral_headlines = list(data[data['sentiment'] == 0].Headline)[:10]
+    negative_headlines = list(data[data['sentiment'] == -1].Headline)[:10]
 
     # Generate plots and related output
     fig, ax = plt.subplots()
@@ -174,10 +193,23 @@ def analyze():
     plot_buffer.seek(0)
     plot_data_uri = base64.b64encode(plot_buffer.read()).decode('utf-8')
 
+    fig, ax = plt.subplots()
+    # Example plot
+    df['sentiment'].value_counts().plot(kind='pie', ax=ax)
+    # Save plot to a BytesIO object
+    plot_buffer = BytesIO()
+    plt.savefig(plot_buffer, format='png')
+    plot_buffer.seek(0)
+    plot_data_uri_pie = base64.b64encode(plot_buffer.read()).decode('utf-8')
+
     # Convert DataFrame to HTML table
     table_html = df.to_html()
-
-    return render_template('display_spec.html', plot_data_uri=plot_data_uri, table_html=table_html)
+    subreddit_name_title_case = subreddit_name.title()
+    keyword_title_case = keyword.title()
+    return render_template('display_spec.html', plot_data_uri=plot_data_uri, plot_data_uri_pie=plot_data_uri_pie,
+                           positive_headlines=positive_headlines,
+                           neutral_headlines=neutral_headlines, negative_headlines=negative_headlines,
+                           table_html=table_html, subr=subreddit_name_title_case, keyword=keyword_title_case)
 
 
 def scrape_reddit(subreddit_name, keyword):

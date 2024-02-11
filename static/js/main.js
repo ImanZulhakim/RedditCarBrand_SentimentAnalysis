@@ -92,3 +92,13 @@ leftArrowButton.addEventListener('click', function () {
     // Redirect to another page
     window.location.href = '/menu'; // Change this URL to the desired destination
 });
+
+
+// Get the button element
+const leftArrowButtonAnalyze = document.getElementById('left-arrow-btn-analyze');
+
+// Add click event listener to the button
+leftArrowButtonAnalyze.addEventListener('click', function () {
+    // Redirect to another page
+    window.location.href = '/spec'; // Change this URL to the desired destination
+});
