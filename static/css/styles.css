@@ -12908,3 +12908,12 @@ body {
     text-align: center;
     padding: 20px; /* Optional: Add padding to the heading */
 }
+.container_brand {
+    text-align: center;
+}
+
+.plot-container {
+    margin: 20px auto; /* Optional: Adjust margin as needed */
+    display: block; /* Optional: Ensures containers are aligned horizontally */
+}
+

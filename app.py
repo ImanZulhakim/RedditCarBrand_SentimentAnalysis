@@ -71,9 +71,16 @@ def brand_detail():
 
     counts = data.label.value_counts(normalize=True) * 100
 
-    sns.barplot(x=counts.index, y=counts, ax=ax)
+    # Define a muted color palette
+    muted_palette = sns.color_palette('bright')
+
+    # Define a dictionary mapping sentiments to colors from the muted palette
+    palette = {'Negative': muted_palette[3], 'Neutral': muted_palette[7], 'Positive': muted_palette[2]}
+
+    sns.barplot(x=counts.index, y=counts, ax=ax, palette=palette.values())
 
     ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+    ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
 
     # Save the plot as a PNG image
@@ -81,7 +88,27 @@ def brand_detail():
     plt.savefig(plot_buffer_sentiment, format='png')
     plot_buffer_sentiment.seek(0)
     sentiment_plot_data_uri = base64.b64encode(plot_buffer_sentiment.read()).decode('utf-8')
+    plt.close()
 
+
+    fig, ax = plt.subplots()
+    # Mapping of labels
+    sentiment_map = {-1: 'Negative', 0: 'Neutral', 1: 'Positive'}
+    # Replace numerical labels with corresponding sentiment labels
+    data['label'] = data['label'].map(sentiment_map)
+
+    # Create the pie chart
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+    data['label'].value_counts().plot(kind='pie', ax=ax)
+    # Save plot to a BytesIO object
+    plot_buffer = BytesIO()
+    plt.savefig(plot_buffer, format='png')
+    plot_buffer.seek(0)
+    plot_data_uri_pie = base64.b64encode(plot_buffer.read()).decode('utf-8')
+    plt.close()
+
+    data_frequency = pd.read_csv(csv_path)
     # Prepare the nltk tokenizer and stopwords
     tokenizer = RegexpTokenizer(r'\w+')
     stop_words = stopwords.words('english')
@@ -95,8 +122,8 @@ def brand_detail():
 
         return tokens
 
-    pos_lines = list(data[data.label == 1].headline)
-    neg_lines = list(data[data.label == 0].headline)  # Add this line to get negative lines
+    pos_lines = list(data_frequency[data_frequency.label == 1].headline)
+    neg_lines = list(data_frequency[data_frequency.label == 0].headline)  # Add this line to get negative lines
 
     pos_tokens = process_text_brand(pos_lines)
     pos_freq = nltk.FreqDist(pos_tokens)
@@ -117,6 +144,7 @@ def brand_detail():
     plt.savefig(plot_buffer_positive, format='png')
     plot_buffer_positive.seek(0)
     positive_plot_data_uri = base64.b64encode(plot_buffer_positive.read()).decode('utf-8')
+    plt.close()
 
     neg_tokens = process_text_brand(neg_lines)  # Process negative lines
     neg_freq = nltk.FreqDist(neg_tokens)  # Frequency distribution of negative tokens
@@ -136,10 +164,32 @@ def brand_detail():
     negative_plot_data_uri = base64.b64encode(plot_buffer_negative.read()).decode('utf-8')
     plt.close()
 
+    data_table = pd.read_csv(csv_path)
+    print(data_table.head())
+    print("Positive headlines:\n")
+    pprint(list(data_table[data_table['label'] == 1].headline)[:5], width=200)
+
+    print("\nNeutral headlines:\n")
+    pprint(list(data_table[data_table['label'] == 0].headline)[:5], width=200)
+
+    print("\nNegative headlines:\n")
+    pprint(list(data_table[data_table['label'] == -1].headline)[:5], width=200)
+
+    brand_positive_headlines = list(data_table[data_table['label'] == 1].headline)[:10]
+    brand_neutral_headlines = list(data_table[data_table['label'] == 0].headline)[:10]
+    brand_negative_headlines = list(data_table[data_table['label'] == -1].headline)[:10]
+
+    subreddit_title_case = subreddit_name.title()
+
     return render_template('display_brand.html',
                            sentiment_plot=sentiment_plot_data_uri,
+                           sentiment_plot_pie=plot_data_uri_pie,
                            positive_plot=positive_plot_data_uri,
-                           negative_plot=negative_plot_data_uri)
+                           negative_plot=negative_plot_data_uri,
+                           subreddit_title_case=subreddit_title_case,
+                           brand_positive_headlines=brand_positive_headlines,
+                           brand_neutral_headlines=brand_neutral_headlines,
+                           brand_negative_headlines=brand_negative_headlines)
 
 
 @app.route('/analyze', methods=['POST'])
