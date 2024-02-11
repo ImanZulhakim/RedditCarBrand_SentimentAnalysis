@@ -68,6 +68,26 @@ function submitForm_Brand() {
         });
 }
 
+function submitForm_compare() {
+    // Submit the form asynchronously using JavaScript Fetch API
+    fetch('/brand_compare', {
+        method: 'POST',
+        body: new FormData(document.getElementById('analysisForm'))
+    })
+        .then(response => {
+            if (response.ok) {
+                // Open the chooseModal modal when the form submission is successful
+                openModalChoose();
+            } else {
+                // Handle errors if the form submission fails
+                console.error('Form submission failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 function redirectToPlot() {
     window.location.href = "plot";
 }
@@ -83,22 +103,3 @@ document.addEventListener("click", function () {
     redirectToTable();
 });
 
-
-// Get the button element
-const leftArrowButton = document.getElementById('left-arrow-btn');
-
-// Add click event listener to the button
-leftArrowButton.addEventListener('click', function () {
-    // Redirect to another page
-    window.location.href = '/menu'; // Change this URL to the desired destination
-});
-
-
-// Get the button element
-const leftArrowButtonAnalyze = document.getElementById('left-arrow-btn-analyze');
-
-// Add click event listener to the button
-leftArrowButtonAnalyze.addEventListener('click', function () {
-    // Redirect to another page
-    window.location.href = '/spec'; // Change this URL to the desired destination
-});

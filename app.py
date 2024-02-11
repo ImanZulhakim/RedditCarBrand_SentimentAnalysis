@@ -22,21 +22,6 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def land():
-    return render_template('land.html')
-
-
-@app.route('/plot')
-def plot():
-    return render_template('plot.html')
-
-
-@app.route('/table')
-def table():
-    return render_template('table.html')
-
-
-@app.route('/menu')
 def menu():
     return render_template('menu.html')
 
@@ -51,9 +36,195 @@ def spec():
     return render_template('spec.html')
 
 
+@app.route('/compare')
+def compare():
+    return render_template('compare.html')
+
+
+@app.route('/compare_results')
+def compare_results():
+    render_template('compare_results.html')
+
+
 def get_csv_filenames(subreddit):
     prefix = f'{subreddit.lower()}'
     return f'{prefix}.csv'
+
+
+@app.route('/brand_compare', methods=['POST'])
+def brand_compare():
+    subreddit_name1 = request.form['subreddit_name1']
+    subreddit_name2 = request.form['subreddit_name2']
+
+    csv_directory = Path('scrape_data')
+
+    # Load the saved csv based on subreddit 1
+    model_filename1 = get_csv_filenames(subreddit_name1)
+    csv_path1 = csv_directory / model_filename1
+    data1 = pd.read_csv(csv_path1)
+
+    # Load the saved csv based on subreddit 2
+    model_filename2 = get_csv_filenames(subreddit_name2)
+    csv_path2 = csv_directory / model_filename2
+    data2 = pd.read_csv(csv_path2)
+
+    # Plot 1 - Sentiment Analysis for subreddit 1
+    fig, ax = plt.subplots(figsize=(5, 5))
+    counts1 = data1.label.value_counts(normalize=True) * 100
+
+    # Filter the data for negative, neutral and positive sentiment.
+    negative_data = data1[data1['label'] == -1]
+    neutral_data = data1[data1['label'] == 0]
+    positive_data = data1[data1['label'] == 1]
+
+    # Compute the percentage of negative, neutral and positive sentiment
+    percentage_negative = (len(negative_data) / len(data1)) * 100
+    percentage_neutral = (len(neutral_data) / len(data1)) * 100
+    percentage_positive = (len(positive_data) / len(data1)) * 100
+
+    palette = {'Negative': '#dc3545', 'Neutral': '#adb5bd', 'Positive': '#198754'}
+    sns.barplot(x=counts1.index, y=counts1, ax=ax, palette=palette.values())
+    ax.set_xticks(range(3))  # Set the positions of ticks
+    ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+
+    # Annotating the plot with the percentage of negative, neutral, and positive sentiment
+    ax.text(0, counts1.max() * 0.03, f'{percentage_negative:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(1, counts1.max() * 0.03, f'{percentage_neutral:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(2, counts1.max() * 0.03, f'{percentage_positive:.2f}%', color='black', ha='center', fontweight='bold')
+
+    plot_buffer_sentiment1 = BytesIO()
+    plt.savefig(plot_buffer_sentiment1, format='png')
+    plot_buffer_sentiment1.seek(0)
+    sentiment_plot_data_uri1 = base64.b64encode(plot_buffer_sentiment1.read()).decode('utf-8')
+    plt.close()
+
+    # Plot 2 - Sentiment Analysis for subreddit 2
+    fig, ax = plt.subplots(figsize=(5, 5))
+    counts2 = data2.label.value_counts(normalize=True) * 100
+
+    # Filter the data for negative, neutral and positive sentiment.
+    negative_data = data2[data2['label'] == -1]
+    neutral_data = data2[data2['label'] == 0]
+    positive_data = data2[data2['label'] == 1]
+
+    # Compute the percentage of negative, neutral and positive sentiment
+    percentage_negative = (len(negative_data) / len(data2)) * 100
+    percentage_neutral = (len(neutral_data) / len(data2)) * 100
+    percentage_positive = (len(positive_data) / len(data2)) * 100
+
+    sns.barplot(x=counts2.index, y=counts2, ax=ax, palette=palette.values())
+    ax.set_xticks(range(3))  # Set the positions of ticks
+    ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+
+    # Annotating the plot with the percentage of negative, neutral, and positive sentiment
+    ax.text(0, counts2.max() * 0.03, f'{percentage_negative:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(1, counts2.max() * 0.03, f'{percentage_neutral:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(2, counts2.max() * 0.03, f'{percentage_positive:.2f}%', color='black', ha='center', fontweight='bold')
+
+    plot_buffer_sentiment2 = BytesIO()
+    plt.savefig(plot_buffer_sentiment2, format='png')
+    plot_buffer_sentiment2.seek(0)
+    sentiment_plot_data_uri2 = base64.b64encode(plot_buffer_sentiment2.read()).decode('utf-8')
+    plt.close()
+
+    # Pie Chart 1 - Sentiment Analysis for subreddit 1
+    fig, ax = plt.subplots()
+    data1['label'] = data1['label'].map({-1: 'Negative', 0: 'Neutral', 1: 'Positive'})
+    ax.set_xlabel("Sentiment")
+    data1['label'].value_counts().plot(kind='pie', ax=ax, colors=[palette[label] for label in data1['label'].unique()])
+    labels = [f'{label} ({sizes:.2f}%)' for label, sizes in
+              zip(data1['label'].unique(), (data1['label'].value_counts(normalize=True) * 100))]
+    ax.legend(labels, loc="best")
+    plot_buffer_pie1 = BytesIO()
+    plt.savefig(plot_buffer_pie1, format='png')
+    plot_buffer_pie1.seek(0)
+    plot_data_uri_pie1 = base64.b64encode(plot_buffer_pie1.read()).decode('utf-8')
+    plt.close()
+
+    # Pie Chart 2 - Sentiment Analysis for subreddit 2
+    fig, ax = plt.subplots()
+    data2['label'] = data2['label'].map({-1: 'Negative', 0: 'Neutral', 1: 'Positive'})
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+    data2['label'].value_counts().plot(kind='pie', ax=ax, colors=[palette[label] for label in data2['label'].unique()])
+    labels = [f'{label} ({sizes:.2f}%)' for label, sizes in
+              zip(data2['label'].unique(), (data2['label'].value_counts(normalize=True) * 100))]
+    ax.legend(labels, loc="best")
+    plot_buffer_pie2 = BytesIO()
+    plt.savefig(plot_buffer_pie2, format='png')
+    plot_buffer_pie2.seek(0)
+    plot_data_uri_pie2 = base64.b64encode(plot_buffer_pie2.read()).decode('utf-8')
+    plt.close()
+
+    subreddit_title1 = subreddit_name1.upper()
+    subreddit_title2 = subreddit_name2.upper()
+    # Initialize dictionaries to store sentiment values for each subreddit
+    sentiment_values1 = {'Positive': 0, 'Neutral': 0, 'Negative': 0}
+    sentiment_values2 = {'Positive': 0, 'Neutral': 0, 'Negative': 0}
+
+    # Calculate sentiment values for subreddit 1
+    sentiment_counts1 = data1.label.value_counts(normalize=True) * 100
+    for sentiment, value in sentiment_counts1.items():
+        sentiment_values1[sentiment] = value
+
+    # Calculate sentiment values for subreddit 2
+    sentiment_counts2 = data2.label.value_counts(normalize=True) * 100
+    for sentiment, value in sentiment_counts2.items():
+        sentiment_values2[sentiment] = value
+
+    data_table1 = pd.read_csv(csv_path1)
+    print(data_table1.head())
+    print("Positive headlines:\n")
+    pprint(list(data_table1[data_table1['label'] == 1].headline)[:5], width=200)
+
+    print("\nNeutral headlines:\n")
+    pprint(list(data_table1[data_table1['label'] == 0].headline)[:5], width=200)
+
+    print("\nNegative headlines:\n")
+    pprint(list(data_table1[data_table1['label'] == -1].headline)[:5], width=200)
+
+    brand_positive_headlines1 = list(data_table1[data_table1['label'] == 1].headline)[:10]
+    brand_neutral_headlines1 = list(data_table1[data_table1['label'] == 0].headline)[:10]
+    brand_negative_headlines1 = list(data_table1[data_table1['label'] == -1].headline)[:10]
+
+    data_table2 = pd.read_csv(csv_path2)
+    print(data_table2.head())
+    print("Positive headlines:\n")
+    pprint(list(data_table2[data_table2['label'] == 1].headline)[:5], width=200)
+
+    print("\nNeutral headlines:\n")
+    pprint(list(data_table2[data_table2['label'] == 0].headline)[:5], width=200)
+
+    print("\nNegative headlines:\n")
+    pprint(list(data_table2[data_table2['label'] == -1].headline)[:5], width=200)
+
+    brand_positive_headlines2 = list(data_table2[data_table2['label'] == 1].headline)[:10]
+    brand_neutral_headlines2 = list(data_table2[data_table2['label'] == 0].headline)[:10]
+    brand_negative_headlines2 = list(data_table2[data_table2['label'] == -1].headline)[:10]
+
+    # Pass the dictionaries to the template
+    return render_template('compare_results.html',
+                           subreddit_name1=subreddit_name1,
+                           subreddit_name2=subreddit_name2,
+                           subreddit_title1=subreddit_title1,
+                           subreddit_title2=subreddit_title2,
+                           sentiment_plot1=sentiment_plot_data_uri1,
+                           sentiment_plot_pie1=plot_data_uri_pie1,
+                           sentiment_plot2=sentiment_plot_data_uri2,
+                           sentiment_plot_pie2=plot_data_uri_pie2,
+                           sentiment_values1=sentiment_values1,
+                           sentiment_values2=sentiment_values2,
+                           brand_positive_headlines1=brand_positive_headlines1,
+                           brand_neutral_headlines1=brand_neutral_headlines1,
+                           brand_negative_headlines1=brand_negative_headlines1,
+                           brand_positive_headlines2=brand_positive_headlines2,
+                           brand_neutral_headlines2=brand_neutral_headlines2,
+                           brand_negative_headlines2=brand_negative_headlines2
+                           )
 
 
 @app.route('/brand_detail', methods=['POST'])
@@ -67,17 +238,19 @@ def brand_detail():
     csv_path = csv_directory / model_filename
     data = pd.read_csv(csv_path)
 
+    # Prepare the nltk tokenizer and stopwords
+    tokenizer = RegexpTokenizer(r'\w+')
+    stop_words = stopwords.words('english')
+
     fig, ax = plt.subplots(figsize=(5, 5))
 
     counts = data.label.value_counts(normalize=True) * 100
 
-    # Define a muted color palette
-    muted_palette = sns.color_palette('bright')
-
-    # Define a dictionary mapping sentiments to colors from the muted palette
-    palette = {'Negative': muted_palette[3], 'Neutral': muted_palette[7], 'Positive': muted_palette[2]}
+    palette = {'Negative': '#dc3545', 'Neutral': '#adb5bd', 'Positive': '#198754'}
 
     sns.barplot(x=counts.index, y=counts, ax=ax, palette=palette.values())
+
+    ax.set_xticks(range(3))  # Set the positions of ticks
 
     ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
     ax.set_xlabel("Sentiment")
@@ -90,7 +263,6 @@ def brand_detail():
     sentiment_plot_data_uri = base64.b64encode(plot_buffer_sentiment.read()).decode('utf-8')
     plt.close()
 
-
     fig, ax = plt.subplots()
     # Mapping of labels
     sentiment_map = {-1: 'Negative', 0: 'Neutral', 1: 'Positive'}
@@ -100,7 +272,7 @@ def brand_detail():
     # Create the pie chart
     ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
-    data['label'].value_counts().plot(kind='pie', ax=ax)
+    data['label'].value_counts().plot(kind='pie', ax=ax, colors=[palette[label] for label in data['label'].unique()])
     # Save plot to a BytesIO object
     plot_buffer = BytesIO()
     plt.savefig(plot_buffer, format='png')

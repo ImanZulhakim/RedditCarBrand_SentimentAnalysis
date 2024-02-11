@@ -155,12 +155,20 @@ h2 {
 }
 
 .submit {
-    margin-left: 25%;
+    margin-left: 40%;
+    margin-top: 5%;
     width: 200px;
-    height: 30px;
-    background-color: #193556;
+    height: 40px;
+    font-size: 20px;
+    background-color: #007bff;
     border: 0;
+    font-weight: bold;
     border-radius: 10px;
+    color: #ffffff;
+}
+
+.submit:hover {
+    background-color: #0056b3;
     color: #ffffff;
 }
 
@@ -169,7 +177,14 @@ h2 {
     border: 0;
     border-radius: 10px;
     color: #ffffff;
-    width: 150px;
+    font-weight: bold;
+    width: 120px;
+    height: 25px;
+}
+
+.choose:hover {
+    background-color: #007bff;
+    color: black;
 }
 
 .box {
@@ -209,7 +224,7 @@ h2 {
 }
 
 
-#left-arrow-btn {
+#left-arrow-btn-menu {
     position: fixed;
     bottom: 20px; /* Adjust as needed */
     right: 20px; /* Adjust as needed */
@@ -225,7 +240,7 @@ h2 {
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-#left-arrow-btn:hover {
+#left-arrow-btn-menu:hover {
     background-color: #0056b3; /* Darker color on hover */
 }
 
@@ -234,4 +249,29 @@ h2 {
 .plot-container {
     margin-bottom: 20px;
 }
+
+
+
+.box1,
+.box2 {
+    width: 400px;
+    height: 300px;
+    background: #fff;
+    color: #000;
+    display: inline-block;
+    margin-left: 210px;
+    margin-right: 40px;
+    vertical-align: top;
+    padding: 30px;
+    box-sizing: border-box;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+    transition: 0.5s;
+}
+
+.box2 {
+    margin-left: 20px;
+}
+
 

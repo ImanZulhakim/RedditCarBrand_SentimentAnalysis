@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Brand Sentiment</title>
+    <link rel="icon" type="image/x-icon" href="../static/img/icon.png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/brand.css"/>
+    <script src="../static/js/main.js"></script>
+
+</head>
+<body>
+
+<form class="content" id="analysisForm" action="/brand_compare" method="post">
+    <div class="box1">
+        <h1>Car Brand 1</h1>
+
+        <div class="form-group">
+            <label>Car Brand 1:</label>
+            <button class="choose" type="button" onclick="openModal('brand1')">Choose Brand</button>
+            <!-- Hidden input field to store selected option -->
+            <input type="hidden" id="selected_option1" name="subreddit_name1">
+        </div>
+        <!-- Box to display the selected option -->
+        <div class="form-group selected-option-box" id="selected_option_box1">
+            Selected Option: <span id="selected_option_text1"></span>
+            <div class="selected-brand-image" id="selected_brand_image1"></div> <!-- Add this div for brand image -->
+        </div>
+    </div>
+
+    <div class="box2">
+        <h1>Car Brand 2</h1>
+
+        <div class="form-group">
+            <label>Car Brand 2:</label>
+            <button class="choose" type="button" onclick="openModal('brand2')">Choose Brand</button>
+            <!-- Hidden input field to store selected option -->
+            <input type="hidden" id="selected_option2" name="subreddit_name2">
+        </div>
+        <!-- Box to display the selected option -->
+        <div class="form-group selected-option-box" id="selected_option_box2">
+            Selected Option: <span id="selected_option_text2"></span>
+            <div class="selected-brand-image" id="selected_brand_image2"></div> <!-- Add this div for brand image -->
+        </div>
+    </div>
+
+    <button class="submit" type="submit" onclick="submitForm_compare()">Start Comparison</button>
+</form>
+
+
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Choose Brand</h2>
+        <div class="button-wrapper">
+            <button class="button1" type="button" onclick="setSelectedOption('Toyota')"></button>
+            <button class="button2" type="button" onclick="setSelectedOption('Nissan')"></button>
+            <button class="button3" type="button" onclick="setSelectedOption('Mazda')"></button>
+        </div>
+    </div>
+</div>
+
+<a href="/">
+    <button id="left-arrow-btn-menu" class="fa fa-arrow-left"></button>
+</a>
+
+<script src="../static/js/main.js"></script>
+<script>
+    function openModal(brand) {
+        var modal = document.getElementById("myModal");
+        modal.style.display = "block";
+
+        // Update the modal title based on the brand
+        var modalTitle = document.querySelector(".modal-content h2");
+        if (brand === 'brand1') {
+            modalTitle.textContent = "Choose Brand 1";
+        } else if (brand === 'brand2') {
+            modalTitle.textContent = "Choose Brand 2";
+        }
+    }
+
+    function setSelectedOption(brand) {
+        var selectedOptionText1 = document.getElementById("selected_option_text1");
+        var selectedOptionText2 = document.getElementById("selected_option_text2");
+        var selectedOptionInput1 = document.getElementById("selected_option1");
+        var selectedOptionInput2 = document.getElementById("selected_option2");
+        var selectedBrandImage1 = document.getElementById("selected_brand_image1");
+        var selectedBrandImage2 = document.getElementById("selected_brand_image2");
+
+        if (selectedOptionText1.textContent.toLowerCase() === brand.toLowerCase()) {
+            // Clear selection
+            selectedOptionText1.textContent = '';
+            selectedOptionInput1.value = '';
+            selectedBrandImage1.style.backgroundImage = '';
+        } else if (selectedOptionText2.textContent.toLowerCase() === brand.toLowerCase()) {
+            // Clear selection
+            selectedOptionText2.textContent = '';
+            selectedOptionInput2.value = '';
+            selectedBrandImage2.style.backgroundImage = '';
+        } else if (selectedOptionText1.textContent === '') {
+            selectedOptionText1.textContent = brand;
+            selectedOptionInput1.value = brand;
+            selectedBrandImage1.style.backgroundImage = `url("../img/${brand.toLowerCase()}.png")`;
+        } else if (selectedOptionText2.textContent === '') {
+            selectedOptionText2.textContent = brand;
+            selectedOptionInput2.value = brand;
+            selectedBrandImage2.style.backgroundImage = `url("../img/${brand.toLowerCase()}.png")`;
+        }
+
+        // After selecting the brand, close the modal
+        closeModal();
+    }
+
+
+    function closeModal() {
+        var modal = document.getElementById("myModal");
+        modal.style.display = "none";
+    }
+
+</script>
+</body>
+</html>
