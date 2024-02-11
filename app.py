@@ -15,8 +15,8 @@ from nltk.tokenize import word_tokenize, RegexpTokenizer
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
+nltk.download('stopwords')
 nltk.download('wordnet')
-
 
 app = Flask(__name__)
 
@@ -41,8 +41,8 @@ def menu():
     return render_template('menu.html')
 
 
-@app.route('/index')
-def index():
+@app.route('/brand')
+def brand():
     return render_template('brand.html')
 
 
@@ -59,27 +59,17 @@ def get_csv_filenames(subreddit):
 @app.route('/brand_detail', methods=['POST'])
 def brand_detail():
     subreddit_name = request.form['subreddit_name']
-    csv_directory = Path('Project/Sentiment Analysis/scrape_data')
+    csv_directory = Path('scrape_data')
     # Load the saved csv based on subreddit
     model_filename = get_csv_filenames(subreddit_name)
     print(model_filename)
 
-    csv_file_path = csv_directory / model_filename
-    df = pd.read_csv(csv_file_path)
+    csv_path = csv_directory / model_filename
+    data = pd.read_csv(csv_path)
 
-    print("Positive headlines:\n")
-    pprint(list(df[df['label'] == 1].headline)[:5], width=200)
+    fig, ax = plt.subplots(figsize=(5, 5))
 
-    print("\nNegative headlines:\n")
-    pprint(list(df[df['label'] == -1].headline)[:5], width=200)
-
-    print(df.label.value_counts())
-
-    print(df.label.value_counts(normalize=True) * 100)
-
-    fig, ax = plt.subplots(figsize=(8, 8))
-
-    counts = df.label.value_counts(normalize=True) * 100
+    counts = data.label.value_counts(normalize=True) * 100
 
     sns.barplot(x=counts.index, y=counts, ax=ax)
 
@@ -87,14 +77,16 @@ def brand_detail():
     ax.set_ylabel("Percentage")
 
     # Save the plot as a PNG image
-    sentiment_plot_path = 'sentiment_plot.png'
-    plt.savefig(sentiment_plot_path)
+    plot_buffer_sentiment = BytesIO()
+    plt.savefig(plot_buffer_sentiment, format='png')
+    plot_buffer_sentiment.seek(0)
+    sentiment_plot_data_uri = base64.b64encode(plot_buffer_sentiment.read()).decode('utf-8')
 
     # Prepare the nltk tokenizer and stopwords
     tokenizer = RegexpTokenizer(r'\w+')
     stop_words = stopwords.words('english')
 
-    def process_text(headlines):
+    def process_text_brand(headlines):
         tokens = []
         for line in headlines:
             toks = tokenizer.tokenize(line)
@@ -103,16 +95,17 @@ def brand_detail():
 
         return tokens
 
-    pos_lines = list(df[df.label == 1].headline)
+    pos_lines = list(data[data.label == 1].headline)
+    neg_lines = list(data[data.label == 0].headline)  # Add this line to get negative lines
 
-    pos_tokens = process_text(pos_lines)
+    pos_tokens = process_text_brand(pos_lines)
     pos_freq = nltk.FreqDist(pos_tokens)
 
     pos_freq.most_common(20)
 
     y_val = [x[1] for x in pos_freq.most_common()]
 
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(5, 5))
     plt.plot(y_val)
 
     plt.xlabel("Words")
@@ -120,14 +113,33 @@ def brand_detail():
     plt.title("Word Frequency Distribution (Positive)")
 
     # Save the positive sentiment plot as a PNG image
-    positive_plot_path = 'positive_plot.png'
-    plt.savefig(positive_plot_path)
+    plot_buffer_positive = BytesIO()
+    plt.savefig(plot_buffer_positive, format='png')
+    plot_buffer_positive.seek(0)
+    positive_plot_data_uri = base64.b64encode(plot_buffer_positive.read()).decode('utf-8')
 
-    # Prepare and save the negative sentiment plot in a similar manner
+    neg_tokens = process_text_brand(neg_lines)  # Process negative lines
+    neg_freq = nltk.FreqDist(neg_tokens)  # Frequency distribution of negative tokens
+
+    # Plot negative sentiment
+    fig = plt.figure(figsize=(5, 5))
+    plt.plot([x[1] for x in neg_freq.most_common(20)])
+
+    plt.xlabel("Words")
+    plt.ylabel("Frequency")
+    plt.title("Word Frequency Distribution (Negative)")
+
+    # Save the negative sentiment plot as a PNG image
+    plot_buffer_negative = BytesIO()
+    plt.savefig(plot_buffer_negative, format='png')
+    plot_buffer_negative.seek(0)
+    negative_plot_data_uri = base64.b64encode(plot_buffer_negative.read()).decode('utf-8')
+    plt.close()
 
     return render_template('display_brand.html',
-                           sentiment_plot=sentiment_plot_path,
-                           positive_plot=positive_plot_path)
+                           sentiment_plot=sentiment_plot_data_uri,
+                           positive_plot=positive_plot_data_uri,
+                           negative_plot=negative_plot_data_uri)
 
 
 @app.route('/analyze', methods=['POST'])

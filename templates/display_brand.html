@@ -10,12 +10,27 @@
 <body>
 <h1>Brand Sentiment Analysis</h1>
 
-<h2>Positive Sentiment Plot</h2>
-<img src="{{ positive_plot }}" alt="Positive Sentiment Plot">
+<!-- Sentiment Plot -->
+<div class="plot-container">
+    <h2>Sentiment Plot</h2>
+    <img src="data:image/png;base64,{{ sentiment_plot }}" alt="Sentiment Plot">
+</div>
 
-<h2>Negative Sentiment Plot</h2>
-<img src="{{ negative_plot }}" alt="Negative Sentiment Plot">
+<!-- Positive Sentiment Plot -->
+<div class="plot-container">
+    <h2>Positive Sentiment Plot</h2>
+    <img src="data:image/png;base64,{{ positive_plot }}" alt="Positive Sentiment Plot">
+</div>
 
+<!-- Negative Sentiment Plot -->
+<div class="plot-container">
+    <h2>Negative Sentiment Plot</h2>
+    <img src="data:image/png;base64,{{ negative_plot }}" alt="Negative Sentiment Plot">
+</div>
+{#<h1>Sentiment Analysis Plot</h1>#}
+{#    <div>#}
+{#        <img src="data:image/png;base64,{{ sentiment_plot }}" alt="Sentiment Analysis Plot">#}
+{#    </div>#}
 <button id="left-arrow-btn" class="fa fa-arrow-left"></button>
 
 <script src="../static/js/main.js"></script>

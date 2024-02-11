@@ -48,6 +48,26 @@ function submitForm() {
         });
 }
 
+function submitForm_Brand() {
+    // Submit the form asynchronously using JavaScript Fetch API
+    fetch('/brand_detail', {
+        method: 'POST',
+        body: new FormData(document.getElementById('analysisForm'))
+    })
+        .then(response => {
+            if (response.ok) {
+                // Open the chooseModal modal when the form submission is successful
+                openModalChoose();
+            } else {
+                // Handle errors if the form submission fails
+                console.error('Form submission failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 function redirectToPlot() {
     window.location.href = "plot";
 }
