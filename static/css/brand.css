@@ -123,18 +123,33 @@ label {
     background-image: url("../img/toyota.png");
     background-size: cover;
     background-position: center;
+    transition: opacity 0.3s ease; /* Adding transition for smooth effect */
+}
+
+.button1:hover {
+    opacity: 0.8; /* Adjust the opacity value as per your preference */
 }
 
 .button2 {
     background-image: url("../img/nissan.png");
     background-size: cover;
     background-position: center;
+    transition: opacity 0.3s ease; /* Adding transition for smooth effect */
+}
+
+.button2:hover {
+    opacity: 0.8; /* Adjust the opacity value as per your preference */
 }
 
 .button3 {
     background-image: url("../img/mazda.png");
     background-size: cover;
     background-position: center;
+    transition: opacity 0.3s ease; /* Adding transition for smooth effect */
+}
+
+.button3:hover {
+    opacity: 0.8; /* Adjust the opacity value as per your preference */
 }
 
 .button1, .button2, .button3 {
@@ -186,12 +201,30 @@ h2 {
 }
 
 .submit_analyze:hover {
-    background-color: #0056b3;
+    background-color: darkviolet;
+    color: #ffffff;
+}
+
+.submit_brand {
+    margin-left: 22%;
+    margin-top: 5%;
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
+    background-color: #007bff;
+    border: 0;
+    font-weight: bold;
+    border-radius: 10px;
+    color: #ffffff;
+}
+
+.submit_brand:hover {
+    background-color: darkviolet;
     color: #ffffff;
 }
 
 .choose {
-    background-color: #0c527a;
+    background-color: #007bff;
     border: 0;
     border-radius: 10px;
     color: #ffffff;
@@ -201,8 +234,8 @@ h2 {
 }
 
 .choose:hover {
-    background-color: #007bff;
-    color: black;
+    background-color: darkviolet;
+    color: #ffffff;
 }
 
 .box {
@@ -259,15 +292,33 @@ h2 {
 }
 
 #left-arrow-btn-menu:hover {
-    background-color: #0056b3; /* Darker color on hover */
+    background-color: darkviolet; /* Darker color on hover */
 }
 
+#left-arrow-btn-brand {
+    position: fixed;
+    bottom: 490px; /* Adjust as needed */
+    right: 915px; /* Adjust as needed */
+    background-color: #007bff; /* Button background color */
+    color: white; /* Button text color */
+    width: 40px; /* Button width */
+    height: 40px; /* Button height */
+    border: none;
+    border-radius: 50%; /* Make it a circle */
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's above other content */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+#left-arrow-btn-brand:hover {
+    background-color: darkviolet; /* Darker color on hover */
+}
 
 
 .plot-container {
     margin-bottom: 20px;
 }
-
 
 
 .box1,

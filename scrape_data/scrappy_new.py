@@ -21,16 +21,13 @@ dates = []
 urls = []
 labels = []
 
-# Fetch data from subreddit 'toyota'
-for submission in reddit.subreddit('toyota').new(limit=None):
+# Fetch data from subreddit reddit.subreddit('subreddit_name')
+for submission in reddit.subreddit('mazda').new(limit=None):
     headlines.append(submission.title)
     dates.append(submission.created_utc)
     urls.append(submission.url)
     clear_output()
     print(len(headlines))
-
-# Verify if the dates list is populated correctly
-print(dates)
 
 # Sentiment analysis using NLTK's Vader
 sia = SIA()
@@ -40,6 +37,8 @@ for line in headlines:
     pol_score = sia.polarity_scores(line)
     pol_score['headline'] = line
     results.append(pol_score)
+
+pprint(results[:30], width=100)
 
 # Construct DataFrame from sentiment analysis results
 df = pd.DataFrame.from_records(results)
@@ -60,7 +59,7 @@ df['date'] = pd.to_datetime(df['date'], unit='s')
 df2 = df[['headline', 'date', 'url', 'label']]
 
 # Save DataFrame to CSV
-df2.to_csv('toyota.csv', index=False)
+df2.to_csv('mazda.csv', index=False)
 
 print("Positive headlines:\n")
 pprint(list(df[df['label'] == 1].headline)[:5], width=200)
@@ -84,18 +83,10 @@ ax.set_ylabel("Percentage")
 plt.show()
 
 from nltk.tokenize import word_tokenize, RegexpTokenizer
-
-example = "This is an example sentence! However, it isn't a very informative one"
-
-print(word_tokenize(example, language='english'))
-
 from nltk.corpus import stopwords
 
 stop_words = stopwords.words('english')
-print(stop_words[:20])
-
 tokenizer = RegexpTokenizer(r'\w+')
-tokenizer.tokenize(example)
 
 
 def process_text(headlines):
