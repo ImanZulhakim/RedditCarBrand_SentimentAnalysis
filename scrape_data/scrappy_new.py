@@ -1,4 +1,3 @@
-from IPython import display
 import math
 from pprint import pprint
 import pandas as pd
@@ -7,6 +6,8 @@ import nltk
 import matplotlib.pyplot as plt
 import seaborn as sns
 import praw
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+from IPython.display import display, clear_output
 
 sns.set(style='darkgrid', context='talk', palette='Dark2')
 
@@ -14,20 +15,24 @@ reddit = praw.Reddit(client_id='UwQGu_BZV3plC9jLCXaRTg',
                      client_secret='pIR4KDYFE0cxjBh73acT7voeSEKm7g',
                      user_agent='LapSent')
 
-headlines = set()
-date = set()
-url = set()
+# Initialize lists for headlines, dates, URLs, and labels
+headlines = []
+dates = []
+urls = []
+labels = []
 
-
-for submission in reddit.subreddit('nissan').new(limit=None):
-    headlines.add(submission.title)
-    date.add(submission.created_utc)
-    url.add(submission.url)
-    display.clear_output()
+# Fetch data from subreddit 'toyota'
+for submission in reddit.subreddit('toyota').new(limit=None):
+    headlines.append(submission.title)
+    dates.append(submission.created_utc)
+    urls.append(submission.url)
+    clear_output()
     print(len(headlines))
 
-from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+# Verify if the dates list is populated correctly
+print(dates)
 
+# Sentiment analysis using NLTK's Vader
 sia = SIA()
 results = []
 
@@ -36,18 +41,26 @@ for line in headlines:
     pol_score['headline'] = line
     results.append(pol_score)
 
-pprint(results[:3], width=100)
-
+# Construct DataFrame from sentiment analysis results
 df = pd.DataFrame.from_records(results)
-df.head()
 
+# Add labels based on compound scores
 df['label'] = 0
 df.loc[df['compound'] > 0.2, 'label'] = 1
 df.loc[df['compound'] < -0.2, 'label'] = -1
-df.head()
 
-df2 = df[['headline', 'label']]
-df2.to_csv('nissan.csv', mode='a', encoding='utf-8', index=False)
+# Add date, URL, and label to the DataFrame
+df['date'] = dates
+df['url'] = urls
+
+# Convert Unix timestamp to human-readable date and time
+df['date'] = pd.to_datetime(df['date'], unit='s')
+
+# Reorder columns
+df2 = df[['headline', 'date', 'url', 'label']]
+
+# Save DataFrame to CSV
+df2.to_csv('toyota.csv', index=False)
 
 print("Positive headlines:\n")
 pprint(list(df[df['label'] == 1].headline)[:5], width=200)

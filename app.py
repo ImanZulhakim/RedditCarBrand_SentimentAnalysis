@@ -350,8 +350,16 @@ def brand_detail():
     brand_positive_headlines = list(data_table[data_table['label'] == 1].headline)[:10]
     brand_neutral_headlines = list(data_table[data_table['label'] == 0].headline)[:10]
     brand_negative_headlines = list(data_table[data_table['label'] == -1].headline)[:10]
+    brand_positive_url = list(data_table[data_table['label'] == 1].url)[:10]
+    brand_neutral_url = list(data_table[data_table['label'] == 0].url)[:10]
+    brand_negative_url = list(data_table[data_table['label'] == -1].url)[:10]
 
     subreddit_title_case = subreddit_name.title()
+
+    # Zip the headlines and URLs
+    brand_positive_headlines_urls = zip(brand_positive_headlines, brand_positive_url)
+    brand_neutral_headlines_urls = zip(brand_neutral_headlines, brand_neutral_url)
+    brand_negative_headlines_urls = zip(brand_negative_headlines, brand_negative_url)
 
     return render_template('display_brand.html',
                            sentiment_plot=sentiment_plot_data_uri,
@@ -359,9 +367,10 @@ def brand_detail():
                            positive_plot=positive_plot_data_uri,
                            negative_plot=negative_plot_data_uri,
                            subreddit_title_case=subreddit_title_case,
-                           brand_positive_headlines=brand_positive_headlines,
-                           brand_neutral_headlines=brand_neutral_headlines,
-                           brand_negative_headlines=brand_negative_headlines)
+                           brand_positive_headlines_urls=brand_positive_headlines_urls,
+                           brand_neutral_headlines_urls=brand_neutral_headlines_urls,
+                           brand_negative_headlines_urls=brand_negative_headlines_urls
+                           )
 
 
 @app.route('/analyze', methods=['POST'])
@@ -405,30 +414,67 @@ def analyze():
     neutral_headlines = list(data[data['sentiment'] == 0].Headline)[:10]
     negative_headlines = list(data[data['sentiment'] == -1].Headline)[:10]
 
-    # Generate plots and related output
-    fig, ax = plt.subplots()
-    # Example plot
-    df['sentiment'].value_counts().plot(kind='bar', ax=ax)
-    # Save plot to a BytesIO object
-    plot_buffer = BytesIO()
-    plt.savefig(plot_buffer, format='png')
-    plot_buffer.seek(0)
-    plot_data_uri = base64.b64encode(plot_buffer.read()).decode('utf-8')
+    # Filter the data for negative, neutral and positive sentiment.
+    negative_data = data[data['sentiment'] == -1]
+    neutral_data = data[data['sentiment'] == 0]
+    positive_data = data[data['sentiment'] == 1]
 
+    # Compute the percentage of negative, neutral and positive sentiment
+    percentage_negative = (len(negative_data) / len(data)) * 100
+    percentage_neutral = (len(neutral_data) / len(data)) * 100
+    percentage_positive = (len(positive_data) / len(data)) * 100
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    counts = data.sentiment.value_counts(normalize=True) * 100
+    palette = {'Negative': '#dc3545', 'Neutral': '#adb5bd', 'Positive': '#198754'}
+
+    sns.barplot(x=counts.index, y=counts, ax=ax, palette=palette.values())
+    ax.set_xticks(range(3))  # Set the positions of ticks
+
+    # Annotating the plot with the percentage of negative, neutral, and positive sentiment
+    ax.text(0, counts.max() * 0.03, f'{percentage_negative:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(1, counts.max() * 0.03, f'{percentage_neutral:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(2, counts.max() * 0.03, f'{percentage_positive:.2f}%', color='black', ha='center', fontweight='bold')
+
+    ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+
+    # Save the plot as a PNG image
+    plot_buffer_sentiment = BytesIO()
+    plt.savefig(plot_buffer_sentiment, format='png')
+    plot_buffer_sentiment.seek(0)
+    sentiment_plot_data_uri = base64.b64encode(plot_buffer_sentiment.read()).decode('utf-8')
+    plt.close()
+
+    # Plot a pie graph
     fig, ax = plt.subplots()
-    # Example plot
-    df['sentiment'].value_counts().plot(kind='pie', ax=ax)
+    sentiment_map = {-1: 'Negative', 0: 'Neutral', 1: 'Positive'}
+    # Replace numerical labels with corresponding sentiment labels
+    data['sentiment'] = data['sentiment'].map(sentiment_map)
+
+    # Create the pie chart
+    ax.set_xlabel("Sentiment")
+    ax.set_ylabel("Percentage")
+    data['sentiment'].value_counts().plot(kind='pie', ax=ax,
+                                          colors=[palette[sentiment] for sentiment in data['sentiment'].unique()])
+    labels = [f'{sentiment} ({sizes:.2f}%)' for sentiment, sizes in
+              zip(data['sentiment'].unique(), (data['sentiment'].value_counts(normalize=True) * 100))]
+    ax.legend(labels, loc="best", bbox_to_anchor=(0.85, 0.9))
+
     # Save plot to a BytesIO object
     plot_buffer = BytesIO()
     plt.savefig(plot_buffer, format='png')
     plot_buffer.seek(0)
     plot_data_uri_pie = base64.b64encode(plot_buffer.read()).decode('utf-8')
+    plt.close()
 
     # Convert DataFrame to HTML table
     table_html = df.to_html()
     subreddit_name_title_case = subreddit_name.title()
     keyword_title_case = keyword.title()
-    return render_template('display_spec.html', plot_data_uri=plot_data_uri, plot_data_uri_pie=plot_data_uri_pie,
+    return render_template('display_spec.html', sentiment_plot_data_uri=sentiment_plot_data_uri,
+                           plot_data_uri_pie=plot_data_uri_pie,
                            positive_headlines=positive_headlines,
                            neutral_headlines=neutral_headlines, negative_headlines=negative_headlines,
                            table_html=table_html, subr=subreddit_name_title_case, keyword=keyword_title_case)

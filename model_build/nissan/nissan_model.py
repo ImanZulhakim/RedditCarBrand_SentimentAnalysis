@@ -83,7 +83,7 @@ if X_test_vectorized.shape[0] == 0:
     exit()
 
 # Support Vector Machine (SVM) Classifier
-svm_params = {'C': [0.1, 1, 10], 'gamma': [0.1, 1, 10], 'kernel': ['rbf', 'linear']}
+svm_params = {'C': [0.1, 1, 10, 100], 'gamma': [1, 0.5, 0.1, 0.001], 'kernel': ['rbf', 'linear']}
 svm_classifier = GridSearchCV(SVC(probability=True), svm_params, cv=5)
 svm_classifier.fit(X_train_vectorized, y_train)
 y_pred_svm = svm_classifier.predict(X_test_vectorized)
@@ -95,7 +95,7 @@ gbm_classifier.fit(X_train_vectorized, y_train)
 y_pred_gbm = gbm_classifier.predict(X_test_vectorized)
 
 # Neural Network (LSTM) Classifier
-mlp_params = {'hidden_layer_sizes': [(100,), (50, 100, 50)], 'max_iter': [500, 1000]}
+mlp_params = {'hidden_layer_sizes': [(100,), (50, 100, 50)], 'max_iter': [500, 1000, 2000]}
 mlp_classifier = GridSearchCV(MLPClassifier(), mlp_params, cv=5)
 mlp_classifier.fit(X_train_vectorized, y_train)
 y_pred_mlp = mlp_classifier.predict(X_test_vectorized)

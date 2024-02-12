@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
-    <title>Brand Sentiment Analysis</title>
+    <title>Car Brand Sentiment</title>
+    <link rel="icon" type="image/x-icon" href="../static/img/icon.png"/>
     <style>
         body {
             background-image: url("{{url_for('static', filename='img/bg.png')}}");
@@ -20,7 +21,7 @@
 <body>
 <div class="container_brand">
     <br>
-    <h7>{{ subreddit_title_case }} Sentiment Analysis</h7>
+    <h1>{{ subreddit_title_case }} Sentiment Analysis</h1>
     <br>
 </div>
 
@@ -32,7 +33,7 @@
                 <div class="col-xl-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="fas fa-chart-area me-1"></i>
+                            <i class="fas fa-chart-bar me-1"></i>
                             Sentiment Bar Chart
                         </div>
                         <div class="card-body">
@@ -44,7 +45,7 @@
                 <div class="col-xl-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <i class="fas fa-chart-bar me-1"></i>
+                            <i class="fas fa-chart-pie me-1"></i>
                             Sentiment Pie Chart
                         </div>
                         <div class="card-body">
@@ -80,22 +81,23 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header">
-                    <i class="fas fa-table me-1"></i>
+                <div class="card-header" style="background-color: darkseagreen">
+                    <i class="fas fa-plus-circle me-1"></i>
                     Positive Headlines
                 </div>
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for Headline in brand_positive_headlines %}
+                        {% for Headline, URL in brand_positive_headlines_urls %}
                             <tr>
-                                <td>{{ Headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
 
             <div class="card mb-4">
                 <div class="card-header">
@@ -105,9 +107,9 @@
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for headline in brand_neutral_headlines %}
+                        {% for Headline, URL in brand_neutral_headlines_urls %}
                             <tr>
-                                <td>{{ headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -116,16 +118,16 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header">
-                    <i class="fas fa-table me-1"></i>
+                <div class="card-header" style="background-color: palevioletred">
+                    <i class="fas fa-minus-circle me-1"></i>
                     Negative Headlines
                 </div>
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for headline in brand_negative_headlines %}
+                        {% for Headline, URL in brand_negative_headlines_urls %}
                             <tr>
-                                <td>{{ headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -138,7 +140,7 @@
 </div>
 
 <a href="/brand">
-    <button id="left-arrow-btn" class="fa fa-arrow-left"></button>
+    <button id="left-arrow-btn-menu" class="fa fa-arrow-left"></button>
 </a>
 
 <script src="../static/js/main.js"></script>

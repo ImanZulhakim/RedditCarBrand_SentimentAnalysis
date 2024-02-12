@@ -172,6 +172,24 @@ h2 {
     color: #ffffff;
 }
 
+.submit_analyze {
+    margin-left: 25%;
+    margin-top: 5%;
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
+    background-color: #007bff;
+    border: 0;
+    font-weight: bold;
+    border-radius: 10px;
+    color: #ffffff;
+}
+
+.submit_analyze:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
 .choose {
     background-color: #0c527a;
     border: 0;
