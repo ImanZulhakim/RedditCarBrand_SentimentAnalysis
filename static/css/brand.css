@@ -183,7 +183,7 @@ h2 {
 }
 
 .submit:hover {
-    background-color: #0056b3;
+    background-color: darkviolet;
     color: #ffffff;
 }
 
@@ -204,6 +204,7 @@ h2 {
     background-color: darkviolet;
     color: #ffffff;
 }
+
 
 .submit_brand {
     margin-left: 22%;
@@ -315,6 +316,25 @@ h2 {
     background-color: darkviolet; /* Darker color on hover */
 }
 
+#left-arrow-btn-spec {
+    position: fixed;
+    bottom: 505px; /* Adjust as needed */
+    right: 915px; /* Adjust as needed */
+    background-color: #007bff; /* Button background color */
+    color: white; /* Button text color */
+    width: 40px; /* Button width */
+    height: 40px; /* Button height */
+    border: none;
+    border-radius: 50%; /* Make it a circle */
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's above other content */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+#left-arrow-btn-spec:hover {
+    background-color: darkviolet; /* Darker color on hover */
+}
 
 .plot-container {
     margin-bottom: 20px;

@@ -12882,7 +12882,7 @@ body {
 }
 
 #left-arrow-btn-menu:hover {
-    background-color: #0056b3; /* Darker color on hover */
+    background-color: darkviolet; /* Darker color on hover */
 }
 
 #left-arrow-btn-analyze {
@@ -12902,7 +12902,7 @@ body {
 }
 
 #left-arrow-btn-analyze:hover {
-    background-color: #0056b3; /* Darker color on hover */
+    background-color: darkviolet; /* Darker color on hover */
 }
 
 .keyword {
@@ -12948,5 +12948,5 @@ body {
 }
 
 #eft-arrow-btn_compare:hover {
-    background-color: #0056b3; /* Darker color on hover */
+    background-color: darkviolet; /* Darker color on hover */
 }

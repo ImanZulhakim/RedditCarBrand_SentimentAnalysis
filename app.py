@@ -379,26 +379,31 @@ def analyze():
     subreddit_name = request.form['subreddit_name']
     keyword = request.form['keyword']
 
-    # Your Reddit scraping code here
+    # Scrape headlines and url based on keyword in subreddit
     filtered_headlines = scrape_reddit(subreddit_name, keyword)
+    url = scrape_reddit_url(subreddit_name, keyword)
 
-    # Convert the list of headlines to a DataFrame
-    df = pd.DataFrame({'Headline': filtered_headlines})
+    # Convert the list of headlines and url to separate DataFrames
+    df_headlines = pd.DataFrame({'Headline': filtered_headlines})
+    df_urls = pd.DataFrame({'url': url})
+
+    # Concatenate the DataFrames along axis 1 (columns)
+    df_combined = pd.concat([df_headlines, df_urls], axis=1)
 
     # Define the CSV file name including the keyword
     csv_file_name = f'{subreddit_name}_{keyword}.csv'
 
     # Save the DataFrame to a CSV file with the specified name
-    df.to_csv(csv_file_name, index=False)
+    df_combined.to_csv(csv_file_name, index=False)
 
-    df.head()
+    df_combined.head()
 
     # Perform sentiment prediction using majority vote
     predictions = predict_from_csv(csv_file_name, subreddit_name)
-    df['sentiment'] = predictions
-    df.to_csv('predicted.csv', index=False)
+    df_combined['sentiment'] = predictions
+    df_combined.to_csv('predicted.csv', index=False)
 
-    print(df.head())
+    print(df_combined.head())
 
     data = pd.read_csv('predicted.csv')
     print(data.head())
@@ -410,10 +415,6 @@ def analyze():
 
     print("\nNegative headlines:\n")
     pprint(list(data[data['sentiment'] == -1].Headline)[:5], width=200)
-
-    positive_headlines = list(data[data['sentiment'] == 1].Headline)[:10]
-    neutral_headlines = list(data[data['sentiment'] == 0].Headline)[:10]
-    negative_headlines = list(data[data['sentiment'] == -1].Headline)[:10]
 
     # Filter the data for negative, neutral and positive sentiment.
     negative_data = data[data['sentiment'] == -1]
@@ -470,15 +471,48 @@ def analyze():
     plot_data_uri_pie = base64.b64encode(plot_buffer.read()).decode('utf-8')
     plt.close()
 
-    # Convert DataFrame to HTML table
-    table_html = df.to_html()
+    data_analyze = pd.read_csv('predicted.csv')
+    positive_headlines = list(data_analyze[data_analyze['sentiment'] == 1].Headline)[:10]
+    neutral_headlines = list(data_analyze[data_analyze['sentiment'] == 0].Headline)[:10]
+    negative_headlines = list(data_analyze[data_analyze['sentiment'] == -1].Headline)[:10]
+    brand_positive_url = list(data_analyze[data_analyze['sentiment'] == 1].url)[:10]
+    brand_neutral_url = list(data_analyze[data_analyze['sentiment'] == 0].url)[:10]
+    brand_negative_url = list(data_analyze[data_analyze['sentiment'] == -1].url)[:10]
+
+    # Zip the headlines and URLs
+    brand_positive_headlines_urls = zip(positive_headlines, brand_positive_url)
+    brand_neutral_headlines_urls = zip(neutral_headlines, brand_neutral_url)
+    brand_negative_headlines_urls = zip(negative_headlines, brand_negative_url)
+
+    # Printing brand_positive_headlines_urls
+    print("Brand Positive Headlines and URLs:")
+    for Headline, url in brand_positive_headlines_urls:
+        print("Headline:", Headline)
+        print("URL:", url)
+        print()
+
+    # Printing brand_neutral_headlines_urls
+    print("Brand Neutral Headlines and URLs:")
+    for Headline, url in brand_neutral_headlines_urls:
+        print("Headline:", Headline)
+        print("URL:", url)
+        print()
+
+    # Printing brand_negative_headlines_urls
+    print("Brand Negative Headlines and URLs:")
+    for Headline, url in brand_negative_headlines_urls:
+        print("Headline:", Headline)
+        print("URL:", url)
+        print()
+
     subreddit_name_title_case = subreddit_name.title()
     keyword_title_case = keyword.title()
     return render_template('display_spec.html', sentiment_plot_data_uri=sentiment_plot_data_uri,
                            plot_data_uri_pie=plot_data_uri_pie,
-                           positive_headlines=positive_headlines,
-                           neutral_headlines=neutral_headlines, negative_headlines=negative_headlines,
-                           table_html=table_html, subr=subreddit_name_title_case, keyword=keyword_title_case)
+                           brand_positive_headlines_urls=brand_positive_headlines_urls,
+                           brand_neutral_headlines_urls=brand_neutral_headlines_urls,
+                           brand_negative_headlines_urls=brand_negative_headlines_urls,
+                           subr=subreddit_name_title_case, keyword=keyword_title_case)
 
 
 def scrape_reddit(subreddit_name, keyword):
@@ -489,6 +523,7 @@ def scrape_reddit(subreddit_name, keyword):
 
     # Create a list to store the filtered headlines
     filtered_headlines = []
+    url = []
 
     # Set the time range for submissions (from today to one year ago)
     end_time = int(time.time())  # Current epoch time
@@ -502,6 +537,29 @@ def scrape_reddit(subreddit_name, keyword):
             filtered_headlines.append(submission.title)
 
     return filtered_headlines
+
+
+def scrape_reddit_url(subreddit_name, keyword):
+    # Initialize Reddit API with your credentials
+    reddit = praw.Reddit(client_id='UwQGu_BZV3plC9jLCXaRTg',
+                         client_secret='pIR4KDYFE0cxjBh73acT7voeSEKm7g',
+                         user_agent='LapSent')
+
+    # Create a list to store the filtered url
+    url = []
+
+    # Set the time range for submissions (from today to one year ago)
+    end_time = int(time.time())  # Current epoch time
+    start_time = end_time - 63072000  # 2 year ago
+
+    # Iterate through the submissions in the subreddit within the time range
+    for submission in reddit.subreddit(subreddit_name).search(f'{keyword}', time_filter='year', limit=None):
+        # Check if the keyword is in the title
+        if keyword.lower() in submission.title.lower():
+            # Add the headline to the list
+            url.append(submission.url)
+
+    return url
 
 
 # Function to construct filenames for trained models based on subreddit

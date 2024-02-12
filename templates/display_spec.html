@@ -63,9 +63,9 @@
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for Headline in positive_headlines %}
+                        {% for Headline, URL in brand_positive_headlines_urls %}
                             <tr>
-                                <td>{{ loop.index }}. {{ Headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -81,9 +81,9 @@
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for headline in neutral_headlines %}
+                        {% for Headline, URL in brand_neutral_headlines_urls %}
                             <tr>
-                                <td>{{ loop.index }}. {{ headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -99,9 +99,9 @@
                 <div class="card-body">
                     <table id="datatablesSimple">
                         <tbody>
-                        {% for headline in negative_headlines %}
+                        {% for Headline, URL in brand_negative_headlines_urls %}
                             <tr>
-                                <td>{{ loop.index }}. {{ headline }}</td>
+                                <td>{{ loop.index }}. {{ Headline }} (<a href="{{ URL }}">Link</a>)</td>
                             </tr>
                         {% endfor %}
                         </tbody>
