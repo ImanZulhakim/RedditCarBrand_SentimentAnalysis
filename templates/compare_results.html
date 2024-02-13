@@ -32,24 +32,6 @@
                 <div class="col-xl-12">
                     <div class="card mb-4">
                         <div class="card-body">
-                            {#                           <div class="row">#}
-                            {#                                <div class="col-xl-6">#}
-                            {#                                    <p><strong>{{ subreddit_title1 }}</strong> <br>Sentiment Values:</p>#}
-                            {#                                    <ul>#}
-                            {#                                        <li>Positive: <span class="positive">{{ '%.2f' % sentiment_values1['Positive'] }}</span></li>#}
-                            {#                                        <li>Neutral : <span class="neutral">{{ '%.2f' % sentiment_values1['Neutral'] }}</span></li>#}
-                            {#                                        <li>Negative:<span class="negative">{{ '%.2f' % sentiment_values1['Negative'] }}</span></li>#}
-                            {#                                    </ul>#}
-                            {#                                </div>#}
-                            {#                                <div class="col-xl-6">#}
-                            {#                                   <p><strong>{{ subreddit_title2 }}</strong> <br>Sentiment Values:</p>#}
-                            {#                                    <ul>#}
-                            {#                                        <li>Positive: <span class="positive">{{ '%.2f' % sentiment_values2['Positive'] }}</span></li>#}
-                            {#                                        <li>Neutral : <span class="neutral">{{ '%.2f' % sentiment_values2['Neutral'] }}</span></li>#}
-                            {#                                        <li>Negative:<span class="negative">{{ '%.2f' % sentiment_values2['Negative'] }}</span></li>#}
-                            {#                                    </ul>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
                             <div class="row">
                                 <div class="col-xl-6">
                                     <div class="card mb-4">
@@ -108,9 +90,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_positive_headlines1 %}
+                                                {% for Headline, URL in brand_positive_headlines_urls1 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
@@ -127,9 +111,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_positive_headlines2 %}
+                                                {% for Headline, URL in brand_positive_headlines_urls2 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
@@ -146,9 +132,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_neutral_headlines1 %}
+                                                {% for Headline, URL in brand_neutral_headlines_urls1 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
@@ -165,9 +153,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_neutral_headlines2 %}
+                                                {% for Headline, URL in brand_neutral_headlines_urls2 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
@@ -184,9 +174,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_negative_headlines1 %}
+                                                {% for Headline, URL in brand_negative_headlines_urls1 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
@@ -194,8 +186,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-6" >
-                                    <div class="card mb-4" >
+                                <div class="col-xl-6">
+                                    <div class="card mb-4">
                                         <div class="card-header" style="background-color: palevioletred">
                                             <i class="fas fa-chart-pie me-1"></i>
                                             Negative Headline for {{ subreddit_name2 }}
@@ -203,9 +195,11 @@
                                         <div class="card-body">
                                             <table id="datatablesSimple">
                                                 <tbody>
-                                                {% for Headline in brand_negative_headlines2 %}
+                                                {% for Headline, URL in brand_negative_headlines_urls2 %}
                                                     <tr>
-                                                        <td>{{ loop.index }}. {{ Headline }}</td>
+                                                        <td>{{ loop.index }}. {{ Headline }} (<a
+                                                                href="{{ URL }}">Link</a>)
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>

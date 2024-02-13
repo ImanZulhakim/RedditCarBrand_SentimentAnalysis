@@ -191,6 +191,14 @@ def brand_compare():
     brand_positive_headlines1 = list(data_table1[data_table1['label'] == 1].headline)[:10]
     brand_neutral_headlines1 = list(data_table1[data_table1['label'] == 0].headline)[:10]
     brand_negative_headlines1 = list(data_table1[data_table1['label'] == -1].headline)[:10]
+    brand_positive_url1 = list(data_table1[data_table1['label'] == 1].url)[:10]
+    brand_neutral_url1 = list(data_table1[data_table1['label'] == 0].url)[:10]
+    brand_negative_url1 = list(data_table1[data_table1['label'] == -1].url)[:10]
+
+    # Zip the headlines and URLs
+    brand_positive_headlines_urls1 = zip(brand_positive_headlines1, brand_positive_url1)
+    brand_neutral_headlines_urls1 = zip(brand_neutral_headlines1, brand_neutral_url1)
+    brand_negative_headlines_urls1 = zip(brand_negative_headlines1, brand_negative_url1)
 
     data_table2 = pd.read_csv(csv_path2)
     print(data_table2.head())
@@ -206,6 +214,14 @@ def brand_compare():
     brand_positive_headlines2 = list(data_table2[data_table2['label'] == 1].headline)[:10]
     brand_neutral_headlines2 = list(data_table2[data_table2['label'] == 0].headline)[:10]
     brand_negative_headlines2 = list(data_table2[data_table2['label'] == -1].headline)[:10]
+    brand_positive_url2 = list(data_table2[data_table2['label'] == 1].url)[:10]
+    brand_neutral_url2 = list(data_table2[data_table2['label'] == 0].url)[:10]
+    brand_negative_url2 = list(data_table2[data_table2['label'] == -1].url)[:10]
+
+    # Zip the headlines and URLs
+    brand_positive_headlines_urls2 = zip(brand_positive_headlines2, brand_positive_url2)
+    brand_neutral_headlines_urls2 = zip(brand_neutral_headlines2, brand_neutral_url2)
+    brand_negative_headlines_urls2 = zip(brand_negative_headlines2, brand_negative_url2)
 
     # Pass the dictionaries to the template
     return render_template('compare_results.html',
@@ -219,12 +235,12 @@ def brand_compare():
                            sentiment_plot_pie2=plot_data_uri_pie2,
                            sentiment_values1=sentiment_values1,
                            sentiment_values2=sentiment_values2,
-                           brand_positive_headlines1=brand_positive_headlines1,
-                           brand_neutral_headlines1=brand_neutral_headlines1,
-                           brand_negative_headlines1=brand_negative_headlines1,
-                           brand_positive_headlines2=brand_positive_headlines2,
-                           brand_neutral_headlines2=brand_neutral_headlines2,
-                           brand_negative_headlines2=brand_negative_headlines2
+                           brand_positive_headlines_urls1=brand_positive_headlines_urls1,
+                           brand_neutral_headlines_urls1=brand_neutral_headlines_urls1,
+                           brand_negative_headlines_urls1=brand_negative_headlines_urls1,
+                           brand_positive_headlines_urls2=brand_positive_headlines_urls2,
+                           brand_neutral_headlines_urls2=brand_neutral_headlines_urls2,
+                           brand_negative_headlines_urls2=brand_negative_headlines_urls2,
                            )
 
 
@@ -243,6 +259,16 @@ def brand_detail():
     tokenizer = RegexpTokenizer(r'\w+')
     stop_words = stopwords.words('english')
 
+    # Filter the data for negative, neutral and positive sentiment.
+    negative_data = data[data['label'] == -1]
+    neutral_data = data[data['label'] == 0]
+    positive_data = data[data['label'] == 1]
+
+    # Compute the percentage of negative, neutral and positive sentiment
+    percentage_negative = (len(negative_data) / len(data)) * 100
+    percentage_neutral = (len(neutral_data) / len(data)) * 100
+    percentage_positive = (len(positive_data) / len(data)) * 100
+
     fig, ax = plt.subplots(figsize=(5, 5))
 
     counts = data.label.value_counts(normalize=True) * 100
@@ -256,6 +282,11 @@ def brand_detail():
     ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
     ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
+
+    # Annotating the plot with the percentage of negative, neutral, and positive sentiment
+    ax.text(0, counts.max() * 0.03, f'{percentage_negative:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(1, counts.max() * 0.03, f'{percentage_neutral:.2f}%', color='black', ha='center', fontweight='bold')
+    ax.text(2, counts.max() * 0.03, f'{percentage_positive:.2f}%', color='black', ha='center', fontweight='bold')
 
     # Save the plot as a PNG image
     plot_buffer_sentiment = BytesIO()
@@ -274,6 +305,9 @@ def brand_detail():
     ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
     data['label'].value_counts().plot(kind='pie', ax=ax, colors=[palette[label] for label in data['label'].unique()])
+    labels = [f'{label} ({sizes:.2f}%)' for label, sizes in
+              zip(data['label'].unique(), (data['label'].value_counts(normalize=True) * 100))]
+    ax.legend(labels, loc="best")
     # Save plot to a BytesIO object
     plot_buffer = BytesIO()
     plt.savefig(plot_buffer, format='png')
@@ -361,6 +395,7 @@ def brand_detail():
     brand_positive_headlines_urls = zip(brand_positive_headlines, brand_positive_url)
     brand_neutral_headlines_urls = zip(brand_neutral_headlines, brand_neutral_url)
     brand_negative_headlines_urls = zip(brand_negative_headlines, brand_negative_url)
+
 
     return render_template('display_brand.html',
                            sentiment_plot=sentiment_plot_data_uri,
@@ -483,27 +518,6 @@ def analyze():
     brand_positive_headlines_urls = zip(positive_headlines, brand_positive_url)
     brand_neutral_headlines_urls = zip(neutral_headlines, brand_neutral_url)
     brand_negative_headlines_urls = zip(negative_headlines, brand_negative_url)
-
-    # Printing brand_positive_headlines_urls
-    print("Brand Positive Headlines and URLs:")
-    for Headline, url in brand_positive_headlines_urls:
-        print("Headline:", Headline)
-        print("URL:", url)
-        print()
-
-    # Printing brand_neutral_headlines_urls
-    print("Brand Neutral Headlines and URLs:")
-    for Headline, url in brand_neutral_headlines_urls:
-        print("Headline:", Headline)
-        print("URL:", url)
-        print()
-
-    # Printing brand_negative_headlines_urls
-    print("Brand Negative Headlines and URLs:")
-    for Headline, url in brand_negative_headlines_urls:
-        print("Headline:", Headline)
-        print("URL:", url)
-        print()
 
     subreddit_name_title_case = subreddit_name.title()
     keyword_title_case = keyword.title()
