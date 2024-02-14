@@ -78,7 +78,60 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-header" style="background-color: darkseagreen">
+                            <i class="fas fa-plus-circle me-1"></i>
+                            Most Common Positive Words
+                        </div>
+                        <div class="card-body">
+                            <table id="datatablesSimple">
+                                <thead>
+                                <tr>
+                                    <th>Word</th>
+                                    <th>Frequency</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for word, count in negative_word %}
+                                    <tr>
+                                        <td>{{ word }}</td>
+                                        <td>{{ count }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-header" style="background-color: darkseagreen">
+                            <i class="fas fa-minus-circle me-1"></i>
+                            Most Common Negative Words
+                        </div>
+                        <div class="card-body">
+                            <table id="datatablesSimple">
+                                <thead>
+                                <tr>
+                                    <th>Word</th>
+                                    <th>Frequency</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for word, count in negative_word %}
+                                    <tr>
+                                        <td>{{ word }}</td>
+                                        <td>{{ count }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
+
 
             <div class="card mb-4">
                 <div class="card-header" style="background-color: darkseagreen">

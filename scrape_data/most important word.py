@@ -1,65 +1,14 @@
 import math
 from pprint import pprint
-import pandas as pd
-import numpy as np
 import nltk
 import matplotlib.pyplot as plt
 import seaborn as sns
-import praw
-from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
-from IPython.display import display, clear_output
 
-sns.set(style='darkgrid', context='talk', palette='Dark2')
+import pandas as pd
 
-reddit = praw.Reddit(client_id='UwQGu_BZV3plC9jLCXaRTg',
-                     client_secret='pIR4KDYFE0cxjBh73acT7voeSEKm7g',
-                     user_agent='LapSent')
+# Load the CSV file into a DataFrame
+df = pd.read_csv('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\scrape_data\\mazda.csv')
 
-# Initialize lists for headlines, dates, URLs, and labels
-headlines = []
-dates = []
-urls = []
-labels = []
-
-# Fetch data from subreddit reddit.subreddit('subreddit_name')
-for submission in reddit.subreddit('mazda').new(limit=None):
-    headlines.append(submission.title)
-    dates.append(submission.created_utc)
-    urls.append(submission.url)
-    clear_output()
-    print(len(headlines))
-
-# Sentiment analysis using NLTK's Vader
-sia = SIA()
-results = []
-
-for line in headlines:
-    pol_score = sia.polarity_scores(line)
-    pol_score['headline'] = line
-    results.append(pol_score)
-
-pprint(results[:30], width=100)
-
-# Construct DataFrame from sentiment analysis results
-df = pd.DataFrame.from_Srecords(results)
-
-# Add labels based on compound scores
-df['label'] = 0
-df.loc[df['compound'] > 0.2, 'label'] = 1
-df.loc[df['compound'] < -0.2, 'label'] = -1
-
-# Add date, URL, and label to the DataFrame
-df['date'] = dates
-df['url'] = urls
-
-# Convert Unix timestamp to human-readable date and time
-df['date'] = pd.to_datetime(df['date'], unit='s')
-
-# Reorder columns
-df2 = df[['headline', 'date', 'url']]
-
-# Save DataFrame to CSV
-df2.to_csv('mazda.csv', index=False)
 
 print("Positive headlines:\n")
 pprint(list(df[df['label'] == 1].headline)[:5], width=200)
@@ -130,7 +79,7 @@ plt.title("Word Frequency Distribution (Positive)")
 plt.plot(x_val, y_final)
 plt.show()
 
-neg_lines = list(df2[df2.label == -1].headline)
+neg_lines = list(df[df.label == -1].headline)
 
 neg_tokens = process_text(neg_lines)
 neg_freq = nltk.FreqDist(neg_tokens)
@@ -162,3 +111,5 @@ plt.ylabel("Frequency (Log)")
 plt.title("Word Frequency Distribution (Negative)")
 plt.plot(x_val, y_final)
 plt.show()
+
+print(neg_freq.most_common(20))
