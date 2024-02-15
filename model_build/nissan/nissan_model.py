@@ -375,10 +375,6 @@ def get_sentiment(text):
 # Apply sentiment analysis to 'headline' column
 df['sentiment'] = df['headline'].apply(get_sentiment)
 
-# Print confusion matrix
-print("Confusion Matrix:")
-print(confusion_matrix(df['label'], df['sentiment']))
-
 # Split the data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(df['headline'], df['sentiment'], test_size=0.4, random_state=42)
 
