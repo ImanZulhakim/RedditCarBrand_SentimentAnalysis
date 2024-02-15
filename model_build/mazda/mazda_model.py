@@ -375,15 +375,11 @@ def get_sentiment(text):
 df['sentiment'] = df['headline'].apply(get_sentiment)
 
 # Convert 'label' and 'sentiment' columns to strings
-df['label'] = df['label'].astype(str)
 df['sentiment'] = df['sentiment'].astype(str)
 
-# Print confusion matrix
-print("Confusion Matrix:")
-print(confusion_matrix(df['label'], df['sentiment']))
 
 # Split the data into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(df['headline'], df['sentiment'], test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(df['headline'], df['sentiment'], test_size=0.4, random_state=42)
 
 # Vectorize the text data using TF-IDF
 vectorizer = TfidfVectorizer()
@@ -407,7 +403,7 @@ gbm_classifier = GridSearchCV(GradientBoostingClassifier(), gbm_params, cv=5)
 gbm_classifier.fit(X_train_vectorized, y_train)
 y_pred_gbm = gbm_classifier.predict(X_test_vectorized)
 
-# Neural Network (LSTM) Classifier
+# Neural Network (backpropagation) Classifier
 mlp_params = {'hidden_layer_sizes': [(150, 100, 50), (120, 80, 40), (100, 50, 30)], 'max_iter': [500, 1000],
               'activation': ['tanh', 'relu'],
               'solver': ['adam'],
@@ -436,7 +432,7 @@ print("\nAccuracy on Test Set (GBM):", accuracy_gbm)
 print("\nAccuracy on Test Set (MLP):", accuracy_mlp)
 
 # Save trained models
-dump(vectorizer, 'mazda_tfidf_vectorizer.joblib')
-dump(svm_classifier, 'mazda_svm_classifier.joblib')
-dump(gbm_classifier, 'mazda_gbm_classifier.joblib')
-dump(mlp_classifier, 'mazda_mlp_classifier.joblib')
+dump(vectorizer, 'mazda_tfidf_vectorizer1.joblib')
+dump(svm_classifier, 'mazda_svm_classifier1.joblib')
+dump(gbm_classifier, 'mazda_gbm_classifier1.joblib')
+dump(mlp_classifier, 'mazda_mlp_classifier1.joblib')

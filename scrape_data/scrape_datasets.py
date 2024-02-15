@@ -148,6 +148,7 @@ plt.title("Word Frequency Distribution (Negative)")
 plt.show()
 
 y_final = []
+
 for i, k, z in zip(y_val[0::3], y_val[1::3], y_val[2::3]):
     if i + k + z == 0:
         break
