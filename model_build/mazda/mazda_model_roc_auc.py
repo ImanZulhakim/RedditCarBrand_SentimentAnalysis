@@ -1,24 +1,29 @@
-import pandas as pd
-from joblib import load
-from collections import Counter
 import re
-from pathlib import Path
-import nltk
-from nltk.tokenize import word_tokenize, RegexpTokenizer
+from joblib import load
+import pandas as pd
+from matplotlib import pyplot as plt
+from nltk import word_tokenize, WordNetLemmatizer
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from sklearn.metrics import confusion_matrix
-
-nltk.download('stopwords')
-nltk.download('wordnet')
+from sklearn.metrics import roc_auc_score, roc_curve, auc
+import numpy as np
 
 # Load the dataset
 df = pd.read_csv('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\scrape_data\\mazda.csv')
 
-sentiment = df['sentiment'].astype(str)
+# Load models
+svm_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
+                      '\\mazda_svm_classifier.joblib')
+gbm_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
+                      '\\mazda_gbm_classifier.joblib')
+mlp_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
+                      '\\mazda_mlp_classifier.joblib')
 
-subreddit_name = 'mazda'
-print(subreddit_name)
+# Load the TF-IDF vectorizer used during training
+vectorizer = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
+                  '\\mazda_tfidf_vectorizer.joblib')
+
+# Vectorize the text data using the loaded TF-IDF vectorizer
+X_vectorized = vectorizer.transform(df['headline'])
 
 # Manual mapping for contractions
 contraction_mapping = {
@@ -348,48 +353,27 @@ def preprocess_text(text):
     return processed_text
 
 
-def predict_from_csv(subreddit):
+def predict_proba_from_csv():
     try:
+        # Load data
         data = pd.read_csv('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\scrape_data\\mazda.csv')
-        print("Sini")
 
-        models_directory = Path(f'model_build/{subreddit}')
-
-        # Load the saved models based on subreddit
-        svm_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
-                              '\\mazda_svm_classifier.joblib')
-        gbm_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
-                              '\\mazda_gbm_classifier.joblib')
-        mlp_classifier = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
-                              '\\mazda_mlp_classifier.joblib')
-
-        # Load the TF-IDF vectorizer used during training
-        vectorizer = load('C:\\Users\\USER\\Desktop\\PRA\\RedditCarBrand_SentimentAnalysis\\model_build\\mazda'
-                          '\\mazda_tfidf_vectorizer.joblib')
-
-        # Check if 'Headline' column exists
+        # Check if 'headline' column exists
         if 'headline' not in data.columns:
             raise ValueError("CSV file does not contain 'headline' column.")
 
         # Preprocess the 'Headline' column
         data['headline'] = data['headline'].apply(preprocess_text)
-        print(data['headline'])
-        # Vectorize the text data using the loaded TF-IDF vectorizer
-        X_vectorized = vectorizer.transform(data['headline'])
 
-        # Make predictions using the loaded models
-        svm_predictions = svm_classifier.predict(X_vectorized)
-        gbm_predictions = gbm_classifier.predict(X_vectorized)
-        mlp_predictions = mlp_classifier.predict(X_vectorized)
+        # Get predicted probabilities for each class
+        svm_probabilities = svm_classifier.predict_proba(X_vectorized)
+        gbm_probabilities = gbm_classifier.predict_proba(X_vectorized)
+        mlp_probabilities = mlp_classifier.predict_proba(X_vectorized)
 
-        # Perform majority voting
-        majority_votes = []
-        for i in range(len(data)):
-            votes = [svm_predictions[i], gbm_predictions[i], mlp_predictions[i]]
-            majority_vote = Counter(votes).most_common(1)[0][0]
-            majority_votes.append(majority_vote)
+        # Average the probabilities from different models
+        avg_probabilities = (svm_probabilities + gbm_probabilities + mlp_probabilities) / 3
 
-        return majority_votes
+        return avg_probabilities, data['sentiment']
 
     except FileNotFoundError:
         print(f"Error: File not found.")
@@ -397,15 +381,40 @@ def predict_from_csv(subreddit):
         print(f"Error: {str(e)}")
 
 
-# Perform sentiment prediction using majority vote
-predictions = predict_from_csv(subreddit_name)
-df['predicted_sentiment'] = predictions
+def plot_roc_auc(y_true, y_pred_proba, classes):
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
 
-df.to_csv('predicted_mazda.csv', index=False)
+    # Compute ROC curve and ROC area for each class
+    for i in range(len(classes)):
+        fpr[i], tpr[i], _ = roc_curve((y_true == classes[i]).astype(int), y_pred_proba[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
 
-# Print confusion matrix
-print("Confusion Matrix:")
-print(confusion_matrix(sentiment, df['predicted_sentiment']))
+    # Plot ROC curve
+    plt.figure(figsize=(8, 6))
+    for i in range(len(classes)):
+        plt.plot(fpr[i], tpr[i], label=f'Class {classes[i]} (AUC = {roc_auc[i]:.2f})')
+
+    plt.plot([0, 1], [0, 1], 'k--', lw=2)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC-AUC Curve for Mazda')
+    plt.legend(loc="lower right")
+    plt.show()
+
+    # Print ROC-AUC scores
+    for i, sentiment_class in enumerate(classes):
+        print(f"ROC-AUC score for class {sentiment_class}: {roc_auc[i]}")
 
 
+# Predictions for the classes
+predictions_proba, y_true = predict_proba_from_csv()  # Assuming you have a function for this
 
+# Extracting the sentiment classes
+sentiment_classes = sorted(df['sentiment'].unique())
+
+# Plot ROC-AUC curve
+plot_roc_auc(y_true, predictions_proba, sentiment_classes)

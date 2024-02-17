@@ -1,5 +1,4 @@
 import math
-
 from flask import Flask, render_template, request
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -52,9 +51,6 @@ def compare_results():
 def get_csv_filenames(subreddit):
     prefix = f'{subreddit.lower()}'
     return f'{prefix}.csv'
-
-
-
 
 
 @app.route('/brand_detail', methods=['POST'])
@@ -117,7 +113,8 @@ def brand_detail():
     # Create the pie chart
     ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
-    data['sentiment'].value_counts().plot(kind='pie', ax=ax, colors=[palette[sentiment] for sentiment in data['sentiment'].unique()])
+    data['sentiment'].value_counts().plot(kind='pie', ax=ax,
+                                          colors=[palette[sentiment] for sentiment in data['sentiment'].unique()])
     labels = [f'{sentiment} ({sizes:.2f}%)' for sentiment, sizes in
               zip(data['sentiment'].unique(), (data['sentiment'].value_counts(normalize=True) * 100))]
     ax.legend(labels, loc="best")
@@ -358,6 +355,7 @@ def analyze():
                            brand_negative_headlines_urls=brand_negative_headlines_urls,
                            subr=subreddit_name_title_case, keyword=keyword_title_case)
 
+
 @app.route('/brand_compare', methods=['POST'])
 def brand_compare():
     subreddit_name1 = request.form['subreddit_name1']
@@ -442,7 +440,8 @@ def brand_compare():
     fig, ax = plt.subplots()
     data1['sentiment'] = data1['sentiment'].map({-1: 'Negative', 0: 'Neutral', 1: 'Positive'})
     ax.set_xlabel("sentiment")
-    data1['sentiment'].value_counts().plot(kind='pie', ax=ax, colors=[palette[sentiment] for sentiment in data1['sentiment'].unique()])
+    data1['sentiment'].value_counts().plot(kind='pie', ax=ax,
+                                           colors=[palette[sentiment] for sentiment in data1['sentiment'].unique()])
     labels = [f'{sentiment} ({sizes:.2f}%)' for sentiment, sizes in
               zip(data1['sentiment'].unique(), (data1['sentiment'].value_counts(normalize=True) * 100))]
     ax.legend(labels, loc="best")
@@ -457,7 +456,8 @@ def brand_compare():
     data2['sentiment'] = data2['sentiment'].map({-1: 'Negative', 0: 'Neutral', 1: 'Positive'})
     ax.set_xlabel("Sentiment")
     ax.set_ylabel("Percentage")
-    data2['sentiment'].value_counts().plot(kind='pie', ax=ax, colors=[palette[sentiment] for sentiment in data2['sentiment'].unique()])
+    data2['sentiment'].value_counts().plot(kind='pie', ax=ax,
+                                           colors=[palette[sentiment] for sentiment in data2['sentiment'].unique()])
     labels = [f'{sentiment} ({sizes:.2f}%)' for sentiment, sizes in
               zip(data2['sentiment'].unique(), (data2['sentiment'].value_counts(normalize=True) * 100))]
     ax.legend(labels, loc="best")
@@ -548,6 +548,7 @@ def brand_compare():
                            brand_neutral_headlines_urls2=brand_neutral_headlines_urls2,
                            brand_negative_headlines_urls2=brand_negative_headlines_urls2,
                            )
+
 
 def scrape_reddit(subreddit_name, keyword):
     # Initialize Reddit API with your credentials
